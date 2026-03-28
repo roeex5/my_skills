@@ -6,9 +6,9 @@
   },
   "plugins": [
     {
-      "name": "git-squash-subset-commits",
-      "source": "./skills/git-squash-subset-commits",
-      "description": "Safely squash noise commits into parent feature commits using the file-subset rule"
+      "name": "my_skills",
+      "source": { "source": "github", "repo": "roeex5/my_skills" },
+      "description": "Personal Claude Code skills"
     }
   ]
 }
