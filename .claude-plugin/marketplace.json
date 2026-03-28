@@ -1,0 +1,14 @@
+{
+  "name": "my_skills",
+  "description": "Personal Claude Code skills — git utilities and workflow automation",
+  "owner": {
+    "name": "roeex5"
+  },
+  "plugins": [
+    {
+      "name": "git-squash-subset-commits",
+      "source": "./skills/git-squash-subset-commits",
+      "description": "Safely squash noise commits into parent feature commits using the file-subset rule"
+    }
+  ]
+}
