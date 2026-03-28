@@ -12,16 +12,18 @@ my_skills/
 └── plugins/      # Bundled plugins (~/.claude/plugins/)
 ```
 
-## Installing a Skill
+## Installing via Claude Code
 
-Copy or symlink the skill directory into `~/.claude/skills/`:
+Add this repo as a marketplace source (run inside Claude Code):
 
-```bash
-# Copy
-cp -r skills/git-squash-subset-commits ~/.claude/skills/
+```
+/plugin marketplace add roeex5/my_skills
+```
 
-# Or symlink (changes here reflect immediately)
-ln -s $(pwd)/skills/git-squash-subset-commits ~/.claude/skills/git-squash-subset-commits
+Then install a specific skill:
+
+```
+/plugin install git-squash-subset-commits@my_skills
 ```
 
 ## Skills
