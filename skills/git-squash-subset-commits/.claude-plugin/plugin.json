@@ -1,0 +1,5 @@
+{
+  "name": "git-squash-subset-commits",
+  "description": "Safely squash noise commits into parent feature commits using the file-subset rule",
+  "version": "1.0.0"
+}
