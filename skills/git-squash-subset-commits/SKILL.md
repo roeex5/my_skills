@@ -36,11 +36,13 @@ ls -la ~/.claude/skills/git-squash-subset-commits/*.sh
 ### `find-pairs.sh` — Full scan (covers Steps 1–3)
 
 ```bash
-~/.claude/skills/git-squash-subset-commits/find-pairs.sh              # uses @{u}
-~/.claude/skills/git-squash-subset-commits/find-pairs.sh origin/main  # explicit base
+~/.claude/skills/git-squash-subset-commits/find-pairs.sh                          # uses @{u}, max-distance=10
+~/.claude/skills/git-squash-subset-commits/find-pairs.sh origin/main              # explicit base
+~/.claude/skills/git-squash-subset-commits/find-pairs.sh origin/main -m 20        # look back up to 20 commits
+~/.claude/skills/git-squash-subset-commits/find-pairs.sh --max-distance 5         # short lookback
 ```
 
-O(n²) scan over all local-only commits. For every (A, B) pair where B is earlier than A, delegates all three checks to `check-pair.sh` and prints only safe pairs. Run this first — pairs it reports are already verified.
+O(m·N) scan over local-only commits, where N is the commit count and m is the max lookback distance (default 10). For each commit A, only the m nearest earlier commits are considered as candidate parents B — noise commits are almost always adjacent to their logical parent, so the default covers all practical cases. Delegates all safety checks to `check-pair.sh`. Run this first — pairs it reports are already verified.
 
 ### `check-pair.sh` — Single-pair check (covers Steps 2–3)
 

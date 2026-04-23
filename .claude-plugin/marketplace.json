@@ -1,6 +1,6 @@
 {
-  "name": "my_skills",
-  "description": "Personal Claude Code skills — git utilities and workflow automation",
+  "name": "my_plugins",
+  "description": "Personal Claude Code plugins — skills, workflow automation, and Slack notifications",
   "owner": {
     "name": "roeex5"
   },
@@ -8,7 +8,15 @@
     {
       "name": "my_skills",
       "source": { "source": "github", "repo": "roeex5/my_skills" },
-      "description": "Personal Claude Code skills"
+      "description": "Personal Claude Code skills — git utilities and workflow automation"
+    },
+    {
+      "name": "claude-notifier",
+      "source": { "source": "github", "repo": "X5-main/claude-notifier" },
+      "description": "Get Slack alerts when Claude Code finishes tasks or stops responding on remote machines",
+      "version": "1.2.0",
+      "author": { "name": "roeex5" },
+      "license": "MIT"
     }
   ]
 }

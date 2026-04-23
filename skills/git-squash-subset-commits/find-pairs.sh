@@ -1,7 +1,7 @@
 #!/bin/zsh
-# Usage: ./find-pairs.sh [upstream-ref]
-# Scans all local-only commits and suggests safe squash pairs.
-# For each commit A, checks every earlier local commit B as a potential target.
+# Usage: ./find-pairs.sh [upstream-ref] [-m|--max-distance N]
+# Scans local-only commits and suggests safe squash pairs.
+# For each commit A, checks at most M earlier commits B (default M=10).
 # Delegates all safety checks to check-pair.sh (merge boundary, file-subset, intermediate conflicts).
 
 set -euo pipefail
@@ -14,11 +14,40 @@ if [[ ! -x "$CHECK_PAIR" ]]; then
     exit 1
 fi
 
-if [[ -n "${1:-}" ]]; then
-    UPSTREAM="$1"
-else
-    UPSTREAM='@{u}'
-fi
+UPSTREAM='@{u}'
+MAX_DISTANCE=10
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -m|--max-distance)
+            shift
+            if [[ -z "${1:-}" || ! "$1" =~ ^[0-9]+$ ]]; then
+                echo "ERROR: --max-distance requires a positive integer."
+                exit 1
+            fi
+            MAX_DISTANCE="$1"
+            shift
+            ;;
+        --max-distance=*)
+            val="${1#*=}"
+            if [[ -z "$val" || ! "$val" =~ ^[0-9]+$ ]]; then
+                echo "ERROR: --max-distance requires a positive integer."
+                exit 1
+            fi
+            MAX_DISTANCE="$val"
+            shift
+            ;;
+        -*)
+            echo "ERROR: Unknown option '$1'."
+            echo "Usage: ./find-pairs.sh [upstream-ref] [-m|--max-distance N]"
+            exit 1
+            ;;
+        *)
+            UPSTREAM="$1"
+            shift
+            ;;
+    esac
+done
 
 # Verify we are inside a git repository.
 if ! git rev-parse --git-dir > /dev/null 2>&1; then
@@ -41,9 +70,15 @@ if [[ ${#commits[@]} -eq 0 ]]; then
 fi
 
 n=${#commits[@]}
-total=$(( n * (n - 1) / 2 ))
+m=$MAX_DISTANCE
 
-echo "Scanning ${n} local commit(s) — ${total} pair(s) to check..." >&2
+# Count pairs actually checked: for each A at index i, B ranges over max(1,i-m)..i-1.
+total=0
+for (( i=2; i<=n; i++ )); do
+    (( total += (i-1 < m ? i-1 : m) )) || true
+done
+
+echo "Scanning ${n} local commit(s) — ${total} pair(s) to check (max-distance=${m})..." >&2
 
 # Progress bar: width 40, printed to stderr so stdout stays clean.
 _progress() {
@@ -64,7 +99,8 @@ for (( i=2; i<=n; i++ )); do
     A="${commits[$i]}"
 
     # Inner loop: B is the candidate parent (earlier in history, lower index).
-    for (( j=1; j<i; j++ )); do
+    # Only look back at most m commits to keep complexity O(m*N).
+    for (( j = (i-m > 1 ? i-m : 1); j < i; j++ )); do
         B="${commits[$j]}"
         (( ++checked )) || true
         _progress "$checked" "$total"
